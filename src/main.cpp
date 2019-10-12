@@ -1,6 +1,8 @@
 #include "WiFi.h"
 #include "HTTPClient.h"
 #include <ArduinoJson.h>
+#include "Adafruit_NeoPixel.h"
+#include "rain.h"
 
 const char* ssid = "SeaPlusPlus";
 const char* password =  "letsplaygames";
@@ -48,38 +50,46 @@ const char* root_ca = \
 
 StaticJsonDocument<800> doc;
 
+#define NEOPIXEL_PIN 14
+#define LED_COUNT 16
+
+Adafruit_NeoPixel strip(LED_COUNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
+Rain rain(strip);
+
 void setup() {
-  Serial.begin(115200);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.println("Connecting to WiFi...");
-  }
-  Serial.println("Connected");
-  client.begin(baseUrl + "?q=ames,us&appid=" + apiToken);
-  Serial.println("Sent request");
-  int httpCode = client.GET();
-  String payload = client.getString();
-  DeserializationError error = deserializeJson(doc, payload);
-  if (error) {
-    Serial.println("deserializeJson failed");
-    Serial.println(error.c_str());
-    Serial.println(payload);
-    return;
-  }
-  double lon = doc["coord"]["lon"];
-  Serial.println(lon);
-  double lat = doc["coord"]["lat"];
-  Serial.println(lat);
-  int id = doc["weather"][0]["id"];
-  Serial.println(id);
-  String main = doc["weather"][0]["main"];
-  Serial.println(main);
-  String description = doc["weather"][0]["description"];
-  Serial.println(description);
-  client.end();
+  // Serial.begin(115200);
+  // WiFi.begin(ssid, password);
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(500);
+  //   Serial.println("Connecting to WiFi...");
+  // }
+  // Serial.println("Connected");
+  // client.begin(baseUrl + "?q=ames,us&appid=" + apiToken);
+  // Serial.println("Sent request");
+  // int httpCode = client.GET();
+  // String payload = client.getString();
+  // DeserializationError error = deserializeJson(doc, payload);
+  // if (error) {
+  //   Serial.println("deserializeJson failed");
+  //   Serial.println(error.c_str());
+  //   Serial.println(payload);
+  //   return;
+  // }
+  // double lon = doc["coord"]["lon"];
+  // Serial.println(lon);
+  // double lat = doc["coord"]["lat"];
+  // Serial.println(lat);
+  // int id = doc["weather"][0]["id"];
+  // Serial.println(id);
+  // String main = doc["weather"][0]["main"];
+  // Serial.println(main);
+  // String description = doc["weather"][0]["description"];
+  // Serial.println(description);
+  // client.end();
+  strip.begin();
+  strip.setBrightness(64);
 }
 
 void loop() {
-  delay(20);
+  rain.loop();
 }
