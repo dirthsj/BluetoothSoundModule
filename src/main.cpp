@@ -51,11 +51,17 @@ OpenWeatherMap weather(client);
 
 #define NEOPIXEL_PIN 14
 #define LED_COUNT 16
+#define BUTTON_PIN 12
 
 Adafruit_NeoPixel strip(LED_COUNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 Rain rain(strip);
 Sunny sunny(strip);
 Lightning lightning(strip, rain);
+
+bool run = true;
+void onButtonPress() {
+  run = !run;
+}
 
 void setup() {
   Serial.begin(115200);
@@ -69,12 +75,17 @@ void setup() {
   WiFi.disconnect();
   strip.begin();
   strip.setBrightness(64);
+
+  attachInterrupt(BUTTON_PIN, onButtonPress, RISING);
 }
 
+
 void loop() {
-  if (weather.getWeatherMain().equals("Rain")) {
-    lightning.loop();
-  } else {
-    sunny.loop();
+  if (run) {
+    if (weather.getWeatherMain().equals("Rain")) {
+      lightning.loop();
+    } else {
+      sunny.loop();
+    }
   }
 }
