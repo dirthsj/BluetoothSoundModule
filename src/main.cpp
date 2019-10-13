@@ -3,14 +3,12 @@
 #include <ArduinoJson.h>
 #include "Adafruit_NeoPixel.h"
 #include "rain.h"
+#include "openweathermap.h"
+#include "sunny.h"
+#include "lightning.h"
 
 const char* ssid = "SeaPlusPlus";
 const char* password =  "letsplaygames";
-
-HTTPClient client;
-
-const String baseUrl = "https://api.openweathermap.org/data/2.5/weather";
-const String apiToken = "c75f9e0d3dc55a7ac15e64e129f4046b";
 
 const char* root_ca = \
 "-----BEGIN CERTIFICATE----- \n" \
@@ -48,48 +46,34 @@ const char* root_ca = \
 "NVOFBkpdn627G190\n" \
 "-----END CERTIFICATE-----\n";
 
-StaticJsonDocument<800> doc;
+HTTPClient client;
+OpenWeatherMap weather(client);
 
 #define NEOPIXEL_PIN 14
 #define LED_COUNT 16
 
 Adafruit_NeoPixel strip(LED_COUNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 Rain rain(strip);
+Sunny sunny(strip);
+Lightning lightning(strip, rain);
 
 void setup() {
-  // Serial.begin(115200);
-  // WiFi.begin(ssid, password);
-  // while (WiFi.status() != WL_CONNECTED) {
-  //   delay(500);
-  //   Serial.println("Connecting to WiFi...");
-  // }
-  // Serial.println("Connected");
-  // client.begin(baseUrl + "?q=ames,us&appid=" + apiToken);
-  // Serial.println("Sent request");
-  // int httpCode = client.GET();
-  // String payload = client.getString();
-  // DeserializationError error = deserializeJson(doc, payload);
-  // if (error) {
-  //   Serial.println("deserializeJson failed");
-  //   Serial.println(error.c_str());
-  //   Serial.println(payload);
-  //   return;
-  // }
-  // double lon = doc["coord"]["lon"];
-  // Serial.println(lon);
-  // double lat = doc["coord"]["lat"];
-  // Serial.println(lat);
-  // int id = doc["weather"][0]["id"];
-  // Serial.println(id);
-  // String main = doc["weather"][0]["main"];
-  // Serial.println(main);
-  // String description = doc["weather"][0]["description"];
-  // Serial.println(description);
-  // client.end();
+  Serial.begin(115200);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.println("Connecting to WiFi...");
+  }
+  Serial.println("Connected");
+  weather.fetchData();
   strip.begin();
   strip.setBrightness(64);
 }
 
 void loop() {
-  rain.loop();
+  if (weather.getWeatherMain().equals("Rain")) {
+    lightning.loop();
+  } else {
+    sunny.loop();
+  }
 }
