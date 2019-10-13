@@ -66,6 +66,7 @@ void setup() {
   }
   Serial.println("Connected");
   weather.fetchData();
+  WiFi.disconnect();
   strip.begin();
   strip.setBrightness(64);
 }
