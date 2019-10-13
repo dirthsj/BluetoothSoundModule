@@ -14,7 +14,7 @@ void Temp::loop(apitemp) {
         }
     }
  } else {
-     for (uint8_t i = 16; i < LED_COUNT; i--) {
+     for (uint8_t i = 15; i >= 0; i--) {
         if (3*temp[i] >= celsius) {
             strip.setPixelColor(126,126,255, temp[i]);
         }
