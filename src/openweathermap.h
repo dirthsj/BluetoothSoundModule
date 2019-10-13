@@ -35,7 +35,7 @@ class OpenWeatherMap {
         String getName();
         uint8_t getCod();
     private:
-        const static int SIZE = 800;
+        const static int SIZE = 1019;
         const String baseUrl = "https://api.openweathermap.org/data/2.5/weather";
         const String apiToken = "c75f9e0d3dc55a7ac15e64e129f4046b";
         StaticJsonDocument<SIZE> doc;

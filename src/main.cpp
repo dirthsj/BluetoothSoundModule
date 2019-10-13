@@ -6,6 +6,7 @@
 #include "openweathermap.h"
 #include "sunny.h"
 #include "lightning.h"
+#include "temp.h"
 
 const char* ssid = "SeaPlusPlus";
 const char* password =  "letsplaygames";
@@ -58,6 +59,7 @@ Adafruit_NeoPixel strip(LED_COUNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 Rain rain(strip);
 Sunny sunny(strip);
 Lightning lightning(strip, rain);
+Temp temp(strip);
 
 enum State {
   WEATHER,
@@ -80,8 +82,6 @@ void onButtonUpdatePress() {
 }
 
 void updateWeatherData() {
-  strip.clear();
-  strip.show();
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -110,9 +110,12 @@ void loop() {
       }
       break;
     case TEMP:
-      // TOOD
+      temp.loop(weather.getTemp());
       break;
     case FETCH:
+      strip.clear();
+      strip.show();
+      delay(1);
       updateWeatherData();
       state = State::WEATHER;
   }

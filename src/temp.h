@@ -8,8 +8,7 @@
 class Temp {
     public:
         Temp(Adafruit_NeoPixel& strip);
-        void loop(uint8_t apitemp);
+        void loop(int apitemp);
     private:
         Adafruit_NeoPixel& strip;
-        uint8_t temp[LED_COUNT] = {0};
 };
