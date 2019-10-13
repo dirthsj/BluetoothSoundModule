@@ -24,9 +24,8 @@ void Lightning::loop() {
                 }
             strip.setPixelColor(i, lightning[i], lightning[i], lightning[i]);
             }
+            strip.show();
+            delay(10);
       break;
     }
-
-    strip.show();
-    delay(10);
 }
