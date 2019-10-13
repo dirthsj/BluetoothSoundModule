@@ -52,19 +52,36 @@ OpenWeatherMap weather(client);
 #define NEOPIXEL_PIN 14
 #define LED_COUNT 16
 #define BUTTON_PIN 12
+#define BUTTON_UPDATE 21
 
 Adafruit_NeoPixel strip(LED_COUNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 Rain rain(strip);
 Sunny sunny(strip);
 Lightning lightning(strip, rain);
 
-bool run = true;
+enum State {
+  WEATHER,
+  TEMP,
+  FETCH,
+};
+
+State state = State::FETCH;
+
 void onButtonPress() {
-  run = !run;
+  if (state == State::TEMP) {
+    state = State::WEATHER;
+  } else {
+    state = State::TEMP;
+  }
 }
 
-void setup() {
-  Serial.begin(115200);
+void onButtonUpdatePress() {
+  state = State::FETCH;
+}
+
+void updateWeatherData() {
+  strip.clear();
+  strip.show();
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -73,19 +90,30 @@ void setup() {
   Serial.println("Connected");
   weather.fetchData();
   WiFi.disconnect();
-  strip.begin();
-  strip.setBrightness(64);
-
-  attachInterrupt(BUTTON_PIN, onButtonPress, RISING);
 }
 
+void setup() {
+  Serial.begin(115200);
+  strip.begin();
+  strip.setBrightness(64);
+  attachInterrupt(BUTTON_PIN, onButtonPress, RISING);
+  attachInterrupt(BUTTON_UPDATE, onButtonUpdatePress, RISING);
+}
 
 void loop() {
-  if (run) {
-    if (weather.getWeatherMain().equals("Rain")) {
-      lightning.loop();
-    } else {
-      sunny.loop();
-    }
+  switch (state) {
+    case WEATHER:
+      if (weather.getWeatherMain().equals("Clouds")) {
+        lightning.loop();
+      } else {
+        sunny.loop();
+      }
+      break;
+    case TEMP:
+      // TOOD
+      break;
+    case FETCH:
+      updateWeatherData();
+      state = State::WEATHER;
   }
 }
